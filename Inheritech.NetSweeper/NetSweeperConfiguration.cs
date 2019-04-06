@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Inheritech.NetSweeper
 {
@@ -37,7 +38,7 @@ namespace Inheritech.NetSweeper
         /// <summary>
         /// Expresión regular para utilizar como validación de respuestas
         /// </summary>
-        public Regex AcceptanceExpression { get; }
+        public Func<string, bool> AcceptanceFunction { get; }
 
         /// <summary>
         /// Crear un nuevo objeto de configuración de barredor de red
@@ -50,13 +51,13 @@ namespace Inheritech.NetSweeper
             int port,
             string resource,
             Protocol protocol,
-            Regex acceptanceExpression
+            Func<string, bool> acceptanceFunction
         )
         {
             Port = port;
             ResourceUri = resource;
             Protocol = protocol;
-            AcceptanceExpression = acceptanceExpression;
+            AcceptanceFunction = acceptanceFunction;
         }
     }
 }

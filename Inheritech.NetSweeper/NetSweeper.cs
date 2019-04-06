@@ -155,7 +155,7 @@ namespace Inheritech.NetSweeper
                     return CheckAddressResult.NotFound;
                 }
                 string responseBody = await response.Content.ReadAsStringAsync();
-                if (m_config.AcceptanceExpression.IsMatch(responseBody)) {
+                if (m_config.AcceptanceFunction(responseBody)) {
                     return CheckAddressResult.Found;
                 }
             } catch (OperationCanceledException) {
