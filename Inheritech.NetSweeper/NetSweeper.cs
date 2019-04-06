@@ -91,15 +91,14 @@ namespace Inheritech.NetSweeper
         /// <summary>
         /// Realizar el barrido de red
         /// </summary>
-        /// <returns></returns>
-        public void Sweep()
+        public void Sweep(CancellationToken token = default(CancellationToken))
         {
             if (Running)
                 return;
 
             Running = true;
 
-            CheckAddresses(m_subNet);
+            CheckAddresses(m_subNet, token);
         }
 
         /// <summary>
@@ -108,24 +107,30 @@ namespace Inheritech.NetSweeper
         /// <param name="addresses"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        private void CheckAddresses(List<IPAddress> addresses)
+        private void CheckAddresses(List<IPAddress> addresses, CancellationToken token = default(CancellationToken))
         {
-            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            CancellationTokenSource tokenSource = null;
+            if (token == CancellationToken.None) {
+                tokenSource = new CancellationTokenSource();
+                token = tokenSource.Token;
+            }
 
             try {
                 Parallel.ForEach(addresses, new ParallelOptions
                 {
-                    CancellationToken = tokenSource.Token,
+                    CancellationToken = token,
                     MaxDegreeOfParallelism = m_maxParallelismDegree
                 }, async (address) =>
                 {
-                    var result = await CheckAddress(address, tokenSource.Token);
+                    var result = await CheckAddress(address, token);
                     switch (result) {
                         case CheckAddressResult.Found:
                             Debug.WriteLine("Found Address: " + address.ToString());
                             RaiseStatusEvent(address, finished: true, found: true);
                             Running = false;
-                            tokenSource.Cancel();
+                            if (tokenSource != null) {
+                                tokenSource.Cancel();
+                            }
                             break;
                         case CheckAddressResult.NotFound:
                             Debug.WriteLine("Checked Address: " + address.ToString());
