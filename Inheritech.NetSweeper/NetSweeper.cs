@@ -38,6 +38,11 @@ namespace Inheritech.NetSweeper
         public event EventHandler<SweepStatus> OnStatus;
 
         /// <summary>
+        /// Al finalizar un barrido
+        /// </summary>
+        public event EventHandler OnFinished;
+
+        /// <summary>
         /// Determina si el barrido está en progreso
         /// </summary>
         public bool Running { get; private set; }
@@ -126,20 +131,22 @@ namespace Inheritech.NetSweeper
                     switch (result) {
                         case CheckAddressResult.Found:
                             Debug.WriteLine("Found Address: " + address.ToString());
-                            RaiseStatusEvent(address, finished: true, found: true);
-                            Running = false;
+                            RaiseStatusEvent(address, found: true);
                             if (tokenSource != null) {
                                 tokenSource.Cancel();
                             }
                             break;
                         case CheckAddressResult.NotFound:
                             Debug.WriteLine("Checked Address: " + address.ToString());
-                            RaiseStatusEvent(address, finished: false, found: false);
+                            RaiseStatusEvent(address, found: false);
                             break;
                     }
                 });
             } catch(Exception) {
 
+            } finally {
+                Running = false;
+                OnFinished?.Invoke(this, new EventArgs());
             }
         }
 
@@ -187,11 +194,10 @@ namespace Inheritech.NetSweeper
         /// Emitir evento de estado
         /// </summary>
         /// <param name="address">Dirección IP</param>
-        /// <param name="finished">Determina si ha acabado el barrido</param>
         /// <param name="found">Determina si se ha encontrado la IP</param>
-        private void RaiseStatusEvent(IPAddress address, bool finished, bool found)
+        private void RaiseStatusEvent(IPAddress address, bool found)
         {
-            OnStatus?.Invoke(this, new SweepStatus(address, finished, found));
+            OnStatus?.Invoke(this, new SweepStatus(address,  found));
         }
     }
 }

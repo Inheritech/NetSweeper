@@ -18,20 +18,14 @@ namespace Inheritech.NetSweeper
         public bool Found { get; }
 
         /// <summary>
-        /// Determina si ya ha terminado el barrido
-        /// </summary>
-        public bool Finished { get; }
-
-        /// <summary>
         /// Construir estructura
         /// </summary>
         /// <param name="current">Dirección IP actual</param>
         /// <param name="finished">Ha terminado ya el barrido</param>
         /// <param name="found">La IP ha sido encontrada ( Y es la actual )</param>
-        public SweepStatus(IPAddress current, bool finished, bool found)
+        public SweepStatus(IPAddress current, bool found)
         {
             NetAddress = current;
-            Finished = finished;
             Found = found;
         }
     }
