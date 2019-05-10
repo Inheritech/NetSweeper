@@ -120,14 +120,14 @@ namespace Inheritech.NetSweeper
                 token = tokenSource.Token;
             }
 
-            try {
-                Parallel.ForEach(addresses, new ParallelOptions
-                {
-                    CancellationToken = token,
-                    MaxDegreeOfParallelism = m_maxParallelismDegree
-                }, async (address) =>
-                {
-                    var result = await CheckAddress(address, token);
+            Parallel.ForEach(addresses, new ParallelOptions
+            {
+                CancellationToken = token,
+                MaxDegreeOfParallelism = m_maxParallelismDegree
+            }, (address) =>
+            {
+                try {
+                    var result = CheckAddress(address, token).Result;
                     switch (result) {
                         case CheckAddressResult.Found:
                             Debug.WriteLine("Found Address: " + address.ToString());
@@ -141,13 +141,12 @@ namespace Inheritech.NetSweeper
                             RaiseStatusEvent(address, found: false);
                             break;
                     }
-                });
-            } catch(Exception) {
-
-            } finally {
-                Running = false;
-                OnFinished?.Invoke(this, new EventArgs());
-            }
+                } catch(Exception e) {
+                    Debug.WriteLine(e);
+                }
+            });
+            Running = false;
+            OnFinished?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

@@ -22,6 +22,9 @@ namespace Inheritech.NetSweeper
         {
             List<IPAddress> resultList = new List<IPAddress>();
             IPAddress localIP = GetLocalIPAddress();
+            if (localIP == null) {
+                return new List<IPAddress>();
+            }
             byte[] ipBytes = localIP.GetAddressBytes();
             int startAddress = 1;
             if (fastStart) {
