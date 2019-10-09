@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Inheritech.NetSweeper.SubNetAlgos;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -9,35 +10,23 @@ namespace Inheritech.NetSweeper
     /// <summary>
     /// Utilidades de red
     /// </summary>
-    class NetUtilities
+    public class NetUtilities
     {
         /// <summary>
         /// Generar un rango de direcciones IP de subred en base a la IP local
         /// </summary>
-        /// <param name="upperBound">Valor máximo de la IP</param>
-        /// <param name="fastStart">Determina si se debe calcular la IP de inicio en base a la IP local</param>
-        /// <param name="fastStartBase">Intervalo de IPs para el inico rápido</param>
         /// <returns>Lista de direcciones IP en base a la subred</returns>
-        public static List<IPAddress> GetSubNet(int upperBound = 255, bool fastStart = false, int fastStartBase = 50)
+        public static List<IPAddress> GetSubNet(ISubNetAlgo algo = null)
         {
             List<IPAddress> resultList = new List<IPAddress>();
             IPAddress localIP = GetLocalIPAddress();
             if (localIP == null) {
-                return new List<IPAddress>();
+                return resultList;
             }
-            byte[] ipBytes = localIP.GetAddressBytes();
-            int startAddress = 1;
-            if (fastStart) {
-                float cent = Convert.ToInt32(ipBytes[3]);
-                cent /= fastStartBase;
-                cent = (int)Math.Floor(cent);
-                startAddress = (int)cent * fastStartBase;
+            if (algo == null) {
+                algo = new DefSubNetAlgo();
             }
-            for (int i = startAddress; i < upperBound; i++) {
-                ipBytes[3] = Convert.ToByte(i);
-                resultList.Add(new IPAddress(ipBytes));
-            }
-
+            resultList.AddRange(algo.GetSubNet(localIP));
             return resultList;
         }
 

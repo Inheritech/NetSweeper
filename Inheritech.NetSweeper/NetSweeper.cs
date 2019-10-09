@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Inheritech.NetSweeper.SubNetAlgos;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -84,7 +85,7 @@ namespace Inheritech.NetSweeper
             int fastStartBase = 50
         )
         {
-            m_subNet = NetUtilities.GetSubNet(upperBound, fastStart, fastStartBase);
+            m_subNet = NetUtilities.GetSubNet(new DefSubNetAlgo(upperBound, fastStart, fastStartBase));
             if (client == null) {
                 client = new HttpClient();
             }
